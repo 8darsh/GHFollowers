@@ -23,7 +23,7 @@ class GFUserInfoHeaderVC: UIViewController {
     init(user: User) {
         super.init(nibName: nil, bundle: nil)
         self.user = user
-        print(user)
+        
     }
     
     required init?(coder: NSCoder) {

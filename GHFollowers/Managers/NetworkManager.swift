@@ -64,7 +64,7 @@ class NetworkManager{
             completed(.failure(.invalidUsername))
             return
         }
-        print(url)
+        
         
         let dataTask = URLSession.shared.dataTask(with: url) { data, response, error in
             if error != nil{
