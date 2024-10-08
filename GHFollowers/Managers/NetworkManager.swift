@@ -10,7 +10,9 @@ import UIKit
 class NetworkManager{
     static let shared = NetworkManager()
     private let baseUrl = "https://api.github.com/users/"
+    
     let cache = NSCache<NSString, UIImage>()
+    
     private init() {}
     
     
@@ -85,6 +87,7 @@ class NetworkManager{
             do{
                 let decoder = JSONDecoder()
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
+                decoder.dateDecodingStrategy = .iso8601
                 let user = try decoder.decode(User.self, from: data)
                 completed(.success(user))
                 
@@ -93,6 +96,43 @@ class NetworkManager{
             }
         }
         dataTask.resume()
+    }
+    
+    
+    func downloadImage(from urlString: String, completed: @escaping(UIImage?)->Void){
+        
+        //Cacheing the data
+        let cacheKey = NSString(string: urlString)
+        
+        if let image = cache.object(forKey: cacheKey){
+            completed(image)
+            return
+        }
+        
+        //If image is not downloaded below code will run
+        
+        guard let url = URL(string: urlString) else {
+            completed(nil)
+            return
+        }
+        
+        let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            guard let self = self,
+                  error == nil,
+                  let response = response as? HTTPURLResponse, response.statusCode == 200,
+                  let data=data,
+                  let image = UIImage(data: data) else{
+                completed(nil)
+                return
+            }
+            
+            
+            self.cache.setObject(image, forKey: cacheKey)
+            
+            completed(image)
+        }
+        
+        task.resume()
     }
 }
 

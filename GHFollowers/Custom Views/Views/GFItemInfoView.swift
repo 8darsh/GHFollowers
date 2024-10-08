@@ -58,17 +58,17 @@ class GFItemInfoView: UIView {
         
         switch itemInfoType {
         case .repos:
-            symbolImageView.image = UIImage(systemName: "folder")
+            symbolImageView.image = Images.folder
             titleLabel.text = "Public Repos"
             
         case .gists:
-            symbolImageView.image = UIImage(systemName: "text.alignleft")
+            symbolImageView.image = Images.textAlignLeft
             titleLabel.text = "Public Gists"
         case .followers:
-            symbolImageView.image = UIImage(systemName: "heart")
+            symbolImageView.image = Images.heart
             titleLabel.text = "Follwers"
         case .following:
-            symbolImageView.image = UIImage(systemName: "person.2")
+            symbolImageView.image = Images.person
             titleLabel.text = "Following"
         }
         
