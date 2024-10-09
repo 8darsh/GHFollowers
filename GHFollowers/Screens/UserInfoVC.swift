@@ -7,12 +7,15 @@
 
 import UIKit
 import SafariServices
-protocol UserInfoVCDelegate: AnyObject{
-    func didTapGitHubProfile(for user: User)
-    func didTapGetFollowers(for user: User)
+
+protocol UserInfoVCDelegate: AnyObject {
+    func didRequestFollower(for username: String)
 }
 
 class UserInfoVC: GFDataLoadingVC {
+    
+    let scrollView = UIScrollView()
+    let contentView = UIView()
     
     let headerView = UIView()
     let itemViewOne = UIView()
@@ -22,12 +25,13 @@ class UserInfoVC: GFDataLoadingVC {
     var username: String!
     var dateLabel = GFBodyLabel(textAlignment: .center)
     
-    weak var delegate: FollowerListVCDelegate!
+    weak var delegate: UserInfoVCDelegate!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureVC()
+        configureScrollView()
         configureUI()
         getUser(username: username)
         
@@ -45,6 +49,19 @@ class UserInfoVC: GFDataLoadingVC {
     
     @objc func dismissVC(){
         dismiss(animated: true)
+    }
+    
+    func configureScrollView(){
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        scrollView.pinToEdges(of: view)
+        contentView.pinToEdges(of: scrollView)
+        
+        NSLayoutConstraint.activate([
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            contentView.heightAnchor.constraint(equalToConstant: 600)
+        ])
+        
     }
     
     func getUser(username: String){
@@ -86,12 +103,12 @@ class UserInfoVC: GFDataLoadingVC {
         let padding: CGFloat = 20
         
         for itemView in itemViews {
-            view.addSubview(itemView)
+            contentView.addSubview(itemView)
             itemView.translatesAutoresizingMaskIntoConstraints = false
             
             NSLayoutConstraint.activate([
-                itemView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
-                itemView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant:  -padding),
+                itemView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
+                itemView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant:  -padding),
             ])
             
         }
@@ -99,8 +116,8 @@ class UserInfoVC: GFDataLoadingVC {
         
         
         NSLayoutConstraint.activate([
-            headerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            headerView.heightAnchor.constraint(equalToConstant: 200),
+            headerView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            headerView.heightAnchor.constraint(equalToConstant: 210),
             
             itemViewOne.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 20),
             itemViewOne.heightAnchor.constraint(equalToConstant: 140),
@@ -110,7 +127,7 @@ class UserInfoVC: GFDataLoadingVC {
             itemViewTwo.heightAnchor.constraint(equalToConstant: 140),
             
             dateLabel.topAnchor.constraint(equalTo: itemViewTwo.bottomAnchor, constant: 20),
-            dateLabel.heightAnchor.constraint(equalToConstant: 18)
+            dateLabel.heightAnchor.constraint(equalToConstant: 50)
             
             
         ])
@@ -128,7 +145,7 @@ class UserInfoVC: GFDataLoadingVC {
 
 }
 
-extension UserInfoVC: UserInfoVCDelegate{
+extension UserInfoVC: GFRepoItemVCDelegate, GFFollowerItemVCDelegate{
     func didTapGitHubProfile(for user: User) {
         guard let url = URL(string: user.htmlUrl) else{
             presentGFAlertOnMainThread(title: "Invalid URL", message: "The usrl attached to user is invalid", buttonTitle: "Ok")
