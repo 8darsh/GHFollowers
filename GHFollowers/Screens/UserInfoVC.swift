@@ -66,18 +66,32 @@ class UserInfoVC: GFDataLoadingVC {
     
     func getUser(username: String){
        
-        NetworkManager.shared.getUserInfo(for: username) { [weak self] result in
+//        NetworkManager.shared.getUserInfo(for: username) { [weak self] result in
+//            
+//            guard let self else {return}
+//            
+//            switch result {
+//            case .success(let user):
+//                DispatchQueue.main.async{
+//                    self.configureUIElements(with: user)
+//                }
+//            case .failure(let error):
+//                self.presentGFAlert(title: "Unable to show user", message: error.rawValue, buttonTitle: "Ok")
+////                self.dismiss(animated: true)
+//            }
+//        }
+        Task{
             
-            guard let self else {return}
-            
-            switch result {
-            case .success(let user):
-                DispatchQueue.main.async{
-                    self.configureUIElements(with: user)
+            do{
+                let user = try await NetworkManager.shared.getUserInfo(for: username)
+                configureUIElements(with: user)
+            }
+            catch{
+                if let gfError = error as? GFError{
+                    presentGFAlert(title: "Unable to show user", message: gfError.rawValue, buttonTitle: "Ok")
+                }else{
+                    presentDefaultError()
                 }
-            case .failure(let error):
-                self.presentGFAlertOnMainThread(title: "Unable to show user", message: error.rawValue, buttonTitle: "Ok")
-//                self.dismiss(animated: true)
             }
         }
        
@@ -148,7 +162,7 @@ class UserInfoVC: GFDataLoadingVC {
 extension UserInfoVC: GFRepoItemVCDelegate, GFFollowerItemVCDelegate{
     func didTapGitHubProfile(for user: User) {
         guard let url = URL(string: user.htmlUrl) else{
-            presentGFAlertOnMainThread(title: "Invalid URL", message: "The usrl attached to user is invalid", buttonTitle: "Ok")
+            presentGFAlert(title: "Invalid URL", message: "The usrl attached to user is invalid", buttonTitle: "Ok")
             return
         }
         presentSafariVC(with: url)
@@ -157,7 +171,7 @@ extension UserInfoVC: GFRepoItemVCDelegate, GFFollowerItemVCDelegate{
     func didTapGetFollowers(for user: User) {
         //
         guard user.followers != 0 else{
-            presentGFAlertOnMainThread(title: "No followers", message: "User has no followers", buttonTitle: "Sad")
+            presentGFAlert(title: "No followers", message: "User has no followers", buttonTitle: "Sad")
             return
         }
         delegate.didRequestFollower(for: user.login)

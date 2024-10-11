@@ -67,7 +67,7 @@ class GFUserInfoHeaderVC: UIViewController {
     }
     
     func configureUIElements(){
-        downloadAvatarImage()
+        avatarImageView.downloadAvatarImage(fromUrl: user.avatarUrl)
         usernameLabel.text = user.login
         nameLabel.text = user.name
         locationImageView.image = UIImage(systemName: "mappin.and.ellipse")
@@ -76,13 +76,7 @@ class GFUserInfoHeaderVC: UIViewController {
         bioLabel.numberOfLines = 0
     }
     
-    func downloadAvatarImage(){
-        NetworkManager.shared.downloadImage(from: user.avatarUrl) { [weak self] image in
-            guard let self else {return}
-            DispatchQueue.main.async { self.avatarImageView.image = image }
-        }
 
-    }
     
     
     func layoutUI(){

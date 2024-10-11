@@ -30,7 +30,13 @@ class GFAvatarImageView: UIImageView {
         translatesAutoresizingMaskIntoConstraints = false
     }
     
-    
+    func downloadAvatarImage(fromUrl url: String){
+        
+        Task{
+            let image = await NetworkManager.shared.downloadImage(from: url) ?? .avatarPlaceholder
+            self.image = image
+        }
 
+    }
 
 }

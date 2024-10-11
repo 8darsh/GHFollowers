@@ -47,20 +47,26 @@ class FavoritesListVC: GFDataLoadingVC {
             guard let self else {return}
             switch result {
             case .success(let favorites):
-                if favorites.isEmpty{
-                    showEmptyStateView(with: "No Favorites?\n Add one on the following screen", in: self.view)
-                }else{
-                    self.favorites = favorites
-                    
-                    DispatchQueue.main.async {
-                        self.tableView.reloadData()
-                        self.view.bringSubviewToFront(self.tableView)
-                    }
-                }
-                
+                updateUI(with: favorites)
                 
             case .failure(let error):
-                self.presentGFAlertOnMainThread(title: "Something went wrong", message: error.rawValue, buttonTitle: "Ok")
+                DispatchQueue.main.async {
+                    self.presentGFAlert(title: "Something went wrong", message: error.rawValue, buttonTitle: "Ok")
+                }
+                
+            }
+        }
+    }
+    
+    func updateUI(with favorites: [Follower]){
+        if favorites.isEmpty{
+            self.showEmptyStateView(with: "No Favorites?\n Add one on the following screen", in: self.view)
+        }else{
+            self.favorites = favorites
+            
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+                self.view.bringSubviewToFront(self.tableView)
             }
         }
     }
@@ -100,10 +106,16 @@ extension FavoritesListVC: UITableViewDataSource, UITableViewDelegate{
             guard let error else{
                 self.favorites.remove(at: indexPath.row)
                 tableView.deleteRows(at: [indexPath], with: .left)
+                if self.favorites.isEmpty{
+                    self.showEmptyStateView(with: "No Favorites?\n Add one on the following screen", in: self.view)
+                }
                 return
             }
+            DispatchQueue.main.async {
+                self.presentGFAlert(title: "Unable to remove", message: error.rawValue, buttonTitle: "Ok")
+            }
             
-            self.presentGFAlertOnMainThread(title: "Unable to remove", message: error.rawValue, buttonTitle: "Ok")
+            
         }
     }
     

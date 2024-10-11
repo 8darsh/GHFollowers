@@ -33,7 +33,7 @@ class GFTextField: UITextField {
         
         backgroundColor = .tertiarySystemBackground
         autocorrectionType = .no
-        autocapitalizationType = .none
+        
         
         returnKeyType = .go
         clearButtonMode = .whileEditing
