@@ -82,15 +82,18 @@ extension FavoritesListVC: UITableViewDataSource, UITableViewDelegate{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: FavoriteCell.reuseID) as! FavoriteCell
         cell.set(favorite: favorites[indexPath.row])
+        cell.selectionStyle = .none
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let favorite = favorites[indexPath.row]
-        let destVC = FollowerListVC(username: favorite.login)
+        let destVC = UserInfoVC()
+        destVC.delegate = self
+        destVC.username = favorite.login
+        let navVC = UINavigationController(rootViewController: destVC)
         
-        
-        navigationController?.pushViewController(destVC, animated: true)
+        present(navVC, animated: true)
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
@@ -119,7 +122,17 @@ extension FavoritesListVC: UITableViewDataSource, UITableViewDelegate{
         }
     }
     
+    
 
+    
+    
+}
+
+extension FavoritesListVC: UserInfoVCDelegate{
+    func didRequestFollower(for username: String) {
+        let destVC = FollowerListVC(username: username)
+        navigationController?.pushViewController(destVC, animated: true)
+    }
     
     
 }
